@@ -1,5 +1,5 @@
 # GNNs_drug_discovery_regression &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
+rint("Number of parameters:
 <div style="text-align:center;color:Blue">
     <h2> Graph Regression with Graph Neural Networks</h2>
 </div>
@@ -632,7 +632,7 @@ print("Number of parameters: ", sum(p.numel() for p in model.parameters()))
     <h3> Train the GNN</h3>
 </div>
 
-Here, we usesklearn's r2_score to measure performance to follow accuracy through time. As this is a regression problem, the right metric is RMSE, but for visual follow-up we calculate accuracy as it is the most intuitive metric. Training using 500 epochs takes about 11 minutes on a Macbook Pro with 64 GB 2667 MHz DDR4, 2.4 GHz 8-Core Intel Core i9, AMD Radeon Pro 5600M 8 GB, Intel UHD Graphics 630 1536 MB. 
+Here, we use sklearn's r2_score to measure performance to follow accuracy through time. As this is a regression problem, the right metric is RMSE, but for visual follow-up we calculate accuracy as it is the most intuitive metric. Training using 500 epochs takes about 11 minutes on a Macbook Pro with 64 GB 2667 MHz DDR4, 2.4 GHz 8-Core Intel Core i9, AMD Radeon Pro 5600M 8 GB, Intel UHD Graphics 630 1536 MB. 
 
 Automated batching multiple graphs into a single giant graph is taken care of by PyTorch Geometric's torch_geometric.data.DataLoader class.
 
