@@ -1,5 +1,5 @@
 # GNNs_drug_discovery_regression &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-rint("Number of parameters:
+ 
 <div style="text-align:center;color:Blue">
     <h2> Graph Regression with Graph Neural Networks</h2>
 </div>
@@ -28,10 +28,6 @@ to classify them based on a value, such as a lipophilicity range.
 - torch
 - torch_geometric
 
-
-#### Data source (see python import below or go here):
-    https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/Lipophilicity.csv
-
 #### This notebook presents a thorough approach on how to apply Graph Neural Networks (GNNs) to solve a graph regression problem. 
 
 We apply graph regression to assign one y-value to an entire graph (in contrast to nodes). 
@@ -40,10 +36,15 @@ We apply graph regression to assign one y-value to an entire graph (in contrast 
 lipophilicity value) for each. One can use these embeddings further to do more analysis, such as 
 to classify them based on a value, such as a lipophilicity range.
 
+Play with the model settings, data splitting, training setups etc. to get the best results from this code and any other data/model you implement based on the information provided.
+
 #### The data: Experimental results of octanol/water distribution coefficient (logD at pH 7.4). 
 Lipophilicity is an important feature of drug molecules that affects both membrane permeability 
 and solubility - thus a molecule's interactivity with other molecules. 
- 
+
+1.	Import lipophilicity data for 4000 molecules (https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/Lipophilicity.csv, or use Python)
+2. from PyTorch Geometric’s dataset library (https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html)
+   
 This Lipophilicity dataset is curated from ChEMBL database, provides experimental results of 
 octanol/water distribution coefficient (logD at pH 7.4) of 4200 compounds. 
 Read more: https://arxiv.org/pdf/1703.00564.pdf
@@ -110,13 +111,13 @@ print("Sample  edges: ", data.num_edges)
     
     ======== first sample =======
     
-    Dataset sample:  Data(x=[24, 9], edge_index=[2, 54], edge_attr=[54, 3], smiles='Cn1c(CN2CCN(CC2)c3ccc(Cl)cc3)nc4ccccc14', y=[1, 1])
-    Sample  nodes:  24
-    Sample  edges:  54
+    Dataset sample:  Data(x=[26, 9], edge_index=[2, 56], edge_attr=[56, 3], smiles='C[C@H](Nc1nc(Nc2cc(C)[nH]n2)c(C)nc1C#N)c3ccc(F)cn3', y=[1, 1])
+    Sample  nodes:  26
+    Sample  edges:  56
 
 
- <div style="text-align:left;color:Blue">
-    <h4> Take a look at the first 5 nodes</h4>
+ <div style="text-align:left;color:Maroon">
+    <h4> Take a look at the first 5 nodes from the first sample molecule</h4>
 </div>
 
 
@@ -135,7 +136,7 @@ dataset[0].x[:5]
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4> The first 5 sparse matrices (COO)</h4>
 </div>
 
@@ -155,7 +156,7 @@ dataset[0].edge_index.t()[:5]
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4> The target (lipophilicty value for the first data point (i.e. molecule))</h4>
 </div>
 
@@ -171,7 +172,7 @@ dataset[0].y
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>Use pubchempy to get the name and rdkit to draw the first molecular structure</h4>
 </div>
 
@@ -194,7 +195,7 @@ match.iupac_name
 ```python
 molecule = Draw.MolsToGridImage([Chem.MolFromSmiles(sm)], 
                 molsPerRow=1, subImgSize=(300,200), returnPNG=False)
-molecule.save('assets/images/first_molecule.png',  bbox_inches='tight')
+molecule.save('assets/images/first_molecule.png')
 molecule
 ```
 
@@ -207,7 +208,7 @@ molecule
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>Let's build a dataframe with some important attributes for each of the first 12 molecules. Twelve because it makes grid plotting easier. Here, we convert a tensor (the target, data.y) to an array for simplicity.</h4>
 </div>
 
@@ -342,7 +343,7 @@ data_attr.head(top_n)
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>Next, we plot the molecular structure for the first 12 molecules. We use the package 'pubchempy' to convert smiles into chemical names. Then we shorten the names for visual clarity (in subplot titles and the above dataframe). To do so, we split the name and use the last string piece after the last ')' or ']', whichever is the shortest.</h4>
 </div>
 
@@ -491,7 +492,7 @@ data_attr
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>Save the dataframe as an image using a great python package called 'dataframe_image'</h4>
 </div>
 
@@ -503,7 +504,7 @@ df_styled =  data_attr.style.background_gradient()
 dfi.export(df_styled, "assets/images/data_attrib.png")
 ```
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>We are now ready to plot the 12 molecules</h4>
 </div>
 
@@ -512,7 +513,7 @@ dfi.export(df_styled, "assets/images/data_attrib.png")
 img = Draw.MolsToGridImage([Chem.MolFromSmiles(data_attr["smiles"][i]) for i in range(top_n)], 
                          molsPerRow=4,subImgSize=(300,200), legends=list(data_attr.name.values),
                          returnPNG=False)
-img.save('assets/images/molecules.png',  bbox_inches='tight')
+img.save('assets/images/molecules.png')
 img
 ```
 
@@ -525,7 +526,7 @@ img
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>To visualize two of the graphs (the first and tenth graph from our original dataset), we convert PyTorch Geometric graph to to NetworkX. Note that there are 24 nodes in the first graph and 27 in the second.</h4>
 </div>
 
@@ -551,7 +552,7 @@ def visualize_net():
                     node_color=[0.91, 0.91, 0.95], node_size=400, width=1.2,
                     edgecolors='blue', cmap="Set2", ax=ax2)
     plt.tight_layout()
-    plt.savefig('assets/images/graphs.png',  bbox_inches='tight')
+    plt.savefig('assets/images/graphs.png', bbox_inches='tight')
     plt.show()    
     
 visualize_net()
@@ -636,8 +637,6 @@ Here, we use sklearn's r2_score to measure performance to follow accuracy throug
 
 Automated batching multiple graphs into a single giant graph is taken care of by PyTorch Geometric's torch_geometric.data.DataLoader class.
 
- <h4 style="text-align:left;color:Red"> *** Note that accuracy and RMSE figures below all come from 2000 epoch training </h4>
-
 #### Training consists of these three major steps:
 
 1. Embed
@@ -656,14 +655,6 @@ warnings.filterwarnings("ignore")
 # Root mean squared error
 loss_fn = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0007)  
-
-# Calculate accuracy using 'isclose'
-
-# def isclose_accuracy(pred_y, y):
-#     diffs = [isclose(i, j, abs_tol=1e-1)*1 for i,j in zip(pred_y, y)]
-#     diffs = [float(str(i)) for i in diffs]
-#     return sum(diffs) / len(y)
-
 
 # Calculate accuracy r2
 def r2_accuracy(pred_y, y):
@@ -684,7 +675,7 @@ model = model.to(device)
 # Data loader
 data_size = len(dataset)
 NUM_GRAPHS_PER_BATCH = 64
-NUM_EPOCHS = 500 
+NUM_EPOCHS = 2000
 
 torch.manual_seed(12345)
 
@@ -712,7 +703,7 @@ def train(data):
       pred, embedding = model(batch.x.float(), batch.edge_index, batch.batch) 
       # Calculating the loss and gradients
       loss = loss_fn(pred, batch.y)     
-      acc = r2_accuracy(pred, batch.y)
+      acc = r2_accuracy(pred.detach().numpy(), batch.y.detach().numpy())
 
       loss.backward()  
       # Update using the gradients
@@ -753,13 +744,28 @@ print("--- training took:  %s minutes ---" % (minutes_e))
     Epoch 200 | Loss: 0.37887 | Acc: 64.00%
     Epoch 300 | Loss: 0.27566 | Acc: 82.00%
     Epoch 400 | Loss: 0.30305 | Acc: 80.00%
+    Epoch 500 | Loss: 0.19684 | Acc: 87.00%
+    Epoch 600 | Loss: 0.21954 | Acc: 88.00%
+    Epoch 700 | Loss: 0.17783 | Acc: 86.00%
+    Epoch 800 | Loss: 0.09046 | Acc: 92.00%
+    Epoch 900 | Loss: 0.13527 | Acc: 91.00%
+    Epoch 1000 | Loss: 0.11694 | Acc: 92.00%
+    Epoch 1100 | Loss: 0.09441 | Acc: 92.00%
+    Epoch 1200 | Loss: 0.08276 | Acc: 96.00%
+    Epoch 1300 | Loss: 0.07728 | Acc: 96.00%
+    Epoch 1400 | Loss: 0.05626 | Acc: 96.00%
+    Epoch 1500 | Loss: 0.02418 | Acc: 99.00%
+    Epoch 1600 | Loss: 0.03023 | Acc: 98.00%
+    Epoch 1700 | Loss: 0.03533 | Acc: 97.00%
+    Epoch 1800 | Loss: 0.02907 | Acc: 96.00%
+    Epoch 1900 | Loss: 0.02873 | Acc: 97.00%
     
     Training done!
     
-    --- training took:  12.0 minutes ---
+    --- training took:  48.0 minutes ---
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>Create a dataframe for our training results for easy plotting. 
 'outputs' and 'targets' are tensors and they need to be converted to arrays.</h4>
 </div>
@@ -767,7 +773,6 @@ print("--- training took:  %s minutes ---" % (minutes_e))
 
 ```python
 losses_float = [float(loss.cpu().detach().numpy()) for loss in losses] 
-# accuracies = [i for i in accuracies] 
 losses_np = np.array([x.item() for x in losses])
 outs = [i[0] for i in outputs]
 outputs_np = np.array([x.item() for x in outs])
@@ -851,7 +856,7 @@ results.head()
 
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>y-axis limits so we can use the same scale for the whole data and the first 20 epochs (Zoomed in).</h4>
 </div>
 
@@ -864,7 +869,6 @@ ymin, ymax = np.floor(min(results[[ 'pred', 'target']].min())),\
 <div style="text-align:center;color:Blue">
     <h3> Evaluate model</h3>
 </div>
-
  
 #### The following granularization of scores is not always required but it helps to know how training is progressing
 
@@ -884,12 +888,16 @@ print("1st 20 Training accuracy: {}%".format(round(training_acc_1st_20, 2)))
 print("Last 20 Training accuracy: {}%".format(round(training_acc_last_20, 2)))
 ```
 
-    Training accuracy: 79.0%
-    1st 20 Training accuracy: 79.0%
-    Last 20 Training accuracy: 79.0%
+    Training accuracy: 82.0%
+    1st 20 Training accuracy: -8049.0%
+    Last 20 Training accuracy: 98.0%
 
 
-<div style="text-align:left;color:Blue">
+#### Note the -8049% training accuracy for the 20 first training epochs. Accuracy fluctuation is a common occurrence especially early in any model training. This could be for many reasons which can read on:
+1. network issues : https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
+2. accuracy flactuation and over-fitting: https://medium.com/@dnyaneshwalwadkar/fix-training-accuracy-fluctuation-over-fitting-problem-in-deep-learning-algorithm-859573090809 
+
+<div style="text-align:left;color:Maroon">
     <h4>Explore training results, visually.</h4>
 </div>
 
@@ -906,18 +914,12 @@ ax3 = plt.subplot2grid(shape=(2, 28), loc=(0,23), colspan=4)
 
 
 results[[ 'pred', 'target']].plot(title='Training target and prediction values\n Training accuracy: ' + str(round(training_acc, 2) )+ '%',
-                                  xlabel='epoch', ylabel = 'logD at pH 7.4',ax=ax1, ylim = (ymin, ymax) ) 
-
+                                  xlabel='epoch', ylabel = 'logD at pH 7.4', ax=ax1, ylim = (ymin, ymax) ) 
 results[[ 'pred', 'target']][:20].plot(title="$1^{st}$ 20 epochs\nAccuracy: " + str(round(training_acc_1st_20, 2)) +'%',
-                                       xlabel='epoch',
-                                 # ylabel = 'logD at pH 7.4',
-                                       ax=ax2, ylim = (ymin, ymax))
+                                       xlabel='epoch', ax=ax2, ylim = (ymin, ymax))
 results[[ 'pred', 'target']][-20:].plot(title="Last 20 epochs\nAccuracy: " + str(round(training_acc_last_20, 2)) +'%',
-                                       xlabel='epoch',
-                                 # ylabel = 'logD at pH 7.4',
-                                       ax=ax3, ylim = (ymin, ymax))
-
-fig.savefig('assets/images/pred_vs_targ.png',  bbox_inches='tight')
+                                       xlabel='epoch', ax=ax3, ylim = (ymin, ymax))
+fig.savefig('assets/images/pred_vs_targ.png', bbox_inches='tight')
 ```
 
 
@@ -926,11 +928,11 @@ fig.savefig('assets/images/pred_vs_targ.png',  bbox_inches='tight')
     
 
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h4>More performance metrics.</h4>
 </div>
 
-<div style="text-align:left;color:Blue">
+<div style="text-align:left;color:Maroon">
     <h5>Plot RMSE (loss) and accuracy.</h5>
 </div>
  
@@ -961,13 +963,12 @@ plt.legend(loc='upper left')
 
 ax1.yaxis.tick_right()
 ax2.yaxis.tick_left()
-# fig.tight_layout()  # otherwise the right y-label is slightly clipped
 
 plt.title("Training losses and 'accuracies' (approximated by 2 decimal closeness)")
 
-# sns.lineplot(data=losses_float, label='Training loss', color=color1, ax=ax1)
 plt.show()
-fig.savefig('assets/images/losses_and_accuracies.png',  bbox_inches='tight')
+fig.tight_layout()
+fig.savefig('assets/images/losses_and_accuracies.png', bbox_inches='tight')
 ```
 
 
@@ -993,11 +994,11 @@ with torch.no_grad():
     test_batch.to(device)
     pred, embed = model(test_batch.x.float(), test_batch.edge_index, test_batch.batch) 
     df = pd.DataFrame()
-    df["y_real"] = test_batch.y.tolist()
+    df["y"] = test_batch.y.tolist()
     df["y_pred"] = pred.tolist()
-df["real"] = df["y_real"].apply(lambda row: row[0])
+df["real"] = df["y"].apply(lambda row: row[0])
 df["pred"] = df["y_pred"].apply(lambda row: row[0])
-df
+df.head()
 ```
 
 
@@ -1021,7 +1022,7 @@ df
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>y_real</th>
+      <th>y</th>
       <th>y_pred</th>
       <th>real</th>
       <th>pred</th>
@@ -1031,83 +1032,40 @@ df
     <tr>
       <th>0</th>
       <td>[2.430000066757202]</td>
-      <td>[2.5059609413146973]</td>
+      <td>[2.0413427352905273]</td>
       <td>2.43</td>
-      <td>2.505961</td>
+      <td>2.041343</td>
     </tr>
     <tr>
       <th>1</th>
       <td>[1.8300000429153442]</td>
-      <td>[1.5632600784301758]</td>
+      <td>[1.6838014125823975]</td>
       <td>1.83</td>
-      <td>1.563260</td>
+      <td>1.683801</td>
     </tr>
     <tr>
       <th>2</th>
       <td>[1.909999966621399]</td>
-      <td>[1.1473329067230225]</td>
+      <td>[1.6316179037094116]</td>
       <td>1.91</td>
-      <td>1.147333</td>
+      <td>1.631618</td>
     </tr>
     <tr>
       <th>3</th>
       <td>[2.1700000762939453]</td>
-      <td>[1.8556458950042725]</td>
+      <td>[2.0308873653411865]</td>
       <td>2.17</td>
-      <td>1.855646</td>
+      <td>2.030887</td>
     </tr>
     <tr>
       <th>4</th>
       <td>[0.9800000190734863]</td>
-      <td>[4.023303508758545]</td>
+      <td>[3.1909775733947754]</td>
       <td>0.98</td>
-      <td>4.023304</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>59</th>
-      <td>[3.9000000953674316]</td>
-      <td>[3.4512650966644287]</td>
-      <td>3.90</td>
-      <td>3.451265</td>
-    </tr>
-    <tr>
-      <th>60</th>
-      <td>[3.180000066757202]</td>
-      <td>[2.9967355728149414]</td>
-      <td>3.18</td>
-      <td>2.996736</td>
-    </tr>
-    <tr>
-      <th>61</th>
-      <td>[3.190000057220459]</td>
-      <td>[2.621446371078491]</td>
-      <td>3.19</td>
-      <td>2.621446</td>
-    </tr>
-    <tr>
-      <th>62</th>
-      <td>[3.6500000953674316]</td>
-      <td>[3.548222780227661]</td>
-      <td>3.65</td>
-      <td>3.548223</td>
-    </tr>
-    <tr>
-      <th>63</th>
-      <td>[3.5999999046325684]</td>
-      <td>[2.190427303314209]</td>
-      <td>3.60</td>
-      <td>2.190427</td>
+      <td>3.190978</td>
     </tr>
   </tbody>
 </table>
-<p>64 rows × 4 columns</p>
 </div>
 
 
@@ -1120,6 +1078,10 @@ test_acc_1st_20 = r2_accuracy(df["real"][:20], df["pred"][:20])
 print("Test accuracy is {}%".format(round(test_acc, 2) ))
 print("1st 20 test accuracy is {}%".format(round(test_acc_1st_20, 2)))
 ```
+
+    Test accuracy is 49.0%
+    1st 20 test accuracy is 14.0%
+
 
 
 ```python
@@ -1144,15 +1106,20 @@ results[[ 'pred', 'target']][:20].plot(title=train_title,
                                        xlabel='epoch',
                                  # ylabel = 'logD at pH 7.4',
                                        ax=ax3, ylim = (ymin, ymax))
-
-fig.savefig('assets/images/pred_vs_targ_trained.png',  bbox_inches='tight')
+fig.savefig('assets/images/pred_vs_targ_trained.png', bbox_inches='tight')
 ```
 
+
     
-![png](assets/images/pred_vs_targ_trained.png)
+![png](assets/images/pred_vs_targ_trained.pngg)
+    
 
 
-## Contributing and Permissions
+### TO DO:
+#### Note the low test accuracy value, which as mentioned before, could be due to over training (the last 20 samples during training were predicted at 98% accuracy). Try larger data for testing, smaller data and epochs for training
+
+
+ ## Contributing and Permissions
 
 Please feel free to reach out to me at https://www.linkedin.com/in/mulugeta-semework-abebe/ for ways to collaborate or use some components.
 
@@ -1177,4 +1144,5 @@ https://medium.com/@tejpal.abhyuday/application-of-graph-neural-networks-for-nod
 https://www.kaggle.com/code/salmaneunus/predict-binding-affinity-of-protein-ligand-systems
 
 https://towardsdatascience.com/drug-discovery-with-graph-neural-networks-part-1-1011713185eb
+
 
